@@ -1,0 +1,92 @@
+SQL Queries: 
+
+1--  Product Wise Sales (sale quantity)
+Query
+
+select f.Product Name as product_name, sum(p.sales_quantity) as sales_quantity
+from point_of_sale p 
+join f_inventory_adjusted f 
+on p.product_key = f.product key
+group by Product_Name
+order by Sales_Quantity desc;
+
+2-- Sales Growth (year)  (Sales Amount)
+Query
+
+select  year(f.date) as sales_year, 
+    sum(p.sales_amount) as total_sales, 
+    round(lag(sum(p.sales_amount)) over (order by year(f.date)), 0) as previous_year_sales,
+    concat(round ((sum(p.sales_amount) - lag(sum(p.sales_amount)) over (order by year(f.date))) / 
+    lag(sum(p.sales_amount)) over (order by year(f.date)) * 100,0),'%') as sales_growth_percentage
+from point_of_sale p
+join f_sales f 
+on p.order_number = f.order_number
+group by sales_year
+order by sales_year;
+
+3-- Daily Sales Trend (Sales Amount)
+Query
+
+select  date (f.date) as sale_date, SUM(p.Sales_Amount) as total_sales
+from point_of_sale p 
+join f_sales f 
+on  p.Order_Number = f.Order_Number
+group by sale_date
+order by sale_date;
+
+ 4-- State Wise Sales (Sales Amount)
+Query
+
+select d.store state as state, SUM(p.Sales_Amount) as sales_amount
+from point_of_sale p
+join f_sales f 
+on p.Order_Number = f.Order_Number
+join d_store d 
+on f.Store Key = d.Store Key
+group by  state
+order by sales_amount desc;
+
+
+ 5-- Top 5 Store Wise Sales (Sales Amount)
+Query
+
+ select d.Store Name as store_name  , sum(p.Sales_Amount) as sales_amount
+ from point_of_sale p 
+ join f_sales f 
+ on p.order_number=f.Order_Number
+ join d_store d
+ on f.Store Key=d.Store Key
+ group by d.Store Name
+ order by sales_amount desc
+ limit 5;
+ 
+ 6-- Region Wise Sales (Sales Amount)
+Query
+
+ select d.store region as store_region  , sum(p.Sales_Amount) as sales_amount
+ from point_of_sale p 
+ join f_sales f 
+ on p.order_number=f.Order_Number
+ join d_store d
+ on f.Store Key=d.Store Key
+ group by store_region;
+ 
+7 -- Purchase Method Wise Sales (Sales Amount)
+ Query
+
+SELECT f.Purchase Method as purchase_method, SUM(p.sales_amount) as sales
+FROM f_sales f
+JOIN point_of_sale p ON f.order_number = p.order_number
+GROUP BY f.Purchase Method
+order by sales desc;
+
+8-- Total Inventory
+Query
+ select sum(Quantity on Hand) as total_inventory
+from f_inventory_adjusted;
+
+ 9-- Inventory Value
+Query
+
+select sum((Quantity on Hand) * Price) as inventory_value
+from f_inventory_adjusted;
